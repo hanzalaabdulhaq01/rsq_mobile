@@ -226,6 +226,8 @@ class _UserRideDetailsScreenState extends State<UserRideDetailsScreen> {
     );
 
     if (!mounted) return;
+    await context.read<RideProvider>().refreshActiveRide();
+    if (!mounted) return;
     final currentRide = context.read<RideProvider>().activeRide;
     if (currentRide?.paymentStatus == 'PENDING') {
       // Stay on screen to show Pay Now button — no rebuild needed, widget already shows it

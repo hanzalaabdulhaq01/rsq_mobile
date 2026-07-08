@@ -5,7 +5,7 @@ class LanguageApi {
   /// Get user language preference
   static Future<String> getLanguagePreference(String userId) async {
     try {
-      final result = await ApiService.get('/users/$userId/language-preference');
+      final result = await ApiService.get('/languages/user/$userId');
       return result['language'] as String? ?? 'en';
     } catch (e) {
       throw AppException('Failed to fetch language preference: ${e.toString()}');
@@ -19,7 +19,7 @@ class LanguageApi {
   }) async {
     try {
       await ApiService.patch(
-        '/users/$userId/language-preference',
+        '/languages/user/$userId',
         data: {'language': languageCode},
       );
     } catch (e) {
@@ -31,7 +31,8 @@ class LanguageApi {
   static Future<List<Map<String, dynamic>>> getAvailableLanguages() async {
     try {
       final result = await ApiService.get('/languages');
-      return (result as List).map((e) => e as Map<String, dynamic>).toList();
+      final languages = result['languages'] as List;
+      return languages.map((e) => e as Map<String, dynamic>).toList();
     } catch (e) {
       throw AppException('Failed to fetch available languages: ${e.toString()}');
     }

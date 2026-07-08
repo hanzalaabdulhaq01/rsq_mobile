@@ -194,31 +194,22 @@ class _FareSelectionScreenState extends State<FareSelectionScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    Row(
-                      children: [
-                        _buildPaymentMethod(),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: SizedBox(
-                            height: 56,
-                            child: ElevatedButton(
-                              onPressed: _loadingAmbulance ? null : _goToPayment,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _loadingAmbulance ? Colors.grey[400] : const Color(0xFFE53935),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                elevation: 0,
-                              ),
-                              child: const Text(
-                                'Confirm Booking',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Roboto'),
-                              ),
-                            ),
-                          ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _loadingAmbulance ? null : _goToPayment,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _loadingAmbulance ? Colors.grey[400] : const Color(0xFFE53935),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          elevation: 0,
                         ),
-                        const SizedBox(width: 12),
-                        _buildCircleIconButton(Icons.tune, () {}, size: 48, iconSize: 20),
-                      ],
+                        child: const Text(
+                          'Confirm Booking',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Roboto'),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -226,35 +217,6 @@ class _FareSelectionScreenState extends State<FareSelectionScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPaymentMethod() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset('assets/images/visa.png', width: 32),
-        const SizedBox(width: 4),
-        const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.black54),
-      ],
-    );
-  }
-
-  Widget _buildCircleIconButton(IconData icon, VoidCallback onTap, {double size = 45, double iconSize = 20}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(size),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey[200]!),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
-        ),
-        child: Icon(icon, size: iconSize, color: Colors.black),
       ),
     );
   }
