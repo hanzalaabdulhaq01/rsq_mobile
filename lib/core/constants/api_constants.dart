@@ -4,7 +4,7 @@ class ApiConstants {
 
   static const String _localBase = 'http://localhost:3001';
   static const String _prodBase =
-      'https://gleaming-inspiration-production-64dc.up.railway.app';
+      'https://rsq-production-6e90.up.railway.app';
 
   static String get baseUrl =>
       (useProduction ? _prodBase : _localBase) + '/api';
