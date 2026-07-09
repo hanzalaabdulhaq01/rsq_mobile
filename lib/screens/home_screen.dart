@@ -43,7 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
         r.status == 'WAITING_DRIVER_ACCEPT' ||
         r.status == 'DRIVER_ACCEPTED' ||
         r.status == 'DRIVER_ARRIVED' ||
-        r.status == 'IN_TRIP'
+        r.status == 'IN_TRIP' ||
+        (r.status == 'COMPLETED' && r.paymentStatus == 'PENDING')
       ).toList();
       if (mounted) {
         if (active.isNotEmpty) {

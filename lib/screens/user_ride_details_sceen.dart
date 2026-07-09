@@ -23,6 +23,7 @@ class _UserRideDetailsScreenState extends State<UserRideDetailsScreen> {
   Timer? _pollTimer;
   bool _ratingShown = false;
   bool _restoreFailed = false;
+  bool _restoring = false;
   List<LatLng> _routePoints = [];
 
   @override
@@ -229,7 +230,12 @@ class _UserRideDetailsScreenState extends State<UserRideDetailsScreen> {
     await context.read<RideProvider>().refreshActiveRide();
     if (!mounted) return;
     final currentRide = context.read<RideProvider>().activeRide;
-    if (currentRide?.paymentStatus == 'PENDING') {
+    if (currentRide == null) {
+      // Ride data missing (e.g. transient refresh failure) — do NOT navigate away.
+      // The existing restore/poll machinery will recover it.
+      return;
+    }
+    if (currentRide.paymentStatus == 'PENDING') {
       // Stay on screen to show Pay Now button — no rebuild needed, widget already shows it
     } else {
       context.read<RideProvider>().clearActiveRide();
@@ -246,6 +252,17 @@ class _UserRideDetailsScreenState extends State<UserRideDetailsScreen> {
     final ride = context.watch<RideProvider>().activeRide;
 
     if (ride == null) {
+      if (!_restoreFailed && !_restoring) {
+        _restoring = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await context.read<RideProvider>().restoreActiveRideIfNeeded();
+          if (!mounted) return;
+          _restoring = false;
+          if (context.read<RideProvider>().activeRide == null) {
+            setState(() => _restoreFailed = true);
+          }
+        });
+      }
       if (_restoreFailed) {
         return Scaffold(
           body: Center(

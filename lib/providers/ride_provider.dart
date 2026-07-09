@@ -138,7 +138,11 @@ class RideProvider extends ChangeNotifier {
     if (_activeRide != null) return;
     try {
       final rides = await RideApi.getMyRides();
-      final candidate = rides.where((r) => r.isActive || r.isFailedNoDriver).toList()
+      final candidate = rides.where((r) =>
+        r.isActive ||
+        r.isFailedNoDriver ||
+        (r.isCompleted && r.paymentStatus == 'PENDING')
+      ).toList()
         ..sort((a, b) => b.requestedAt.compareTo(a.requestedAt));
       if (candidate.isNotEmpty) {
         _activeRide = candidate.first;
