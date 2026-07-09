@@ -263,7 +263,7 @@ class _ParamedicProfileScreenState extends State<ParamedicProfileScreen> {
                 children: [
                   _tabButton('Profile', 0),
                   const SizedBox(width: 12),
-                  _tabButton('Ride History', 1),
+                  // _tabButton('Ride History', 1),
                 ],
               ),
             ),
