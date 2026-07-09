@@ -162,20 +162,19 @@ class _FareSelectionScreenState extends State<FareSelectionScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    Row(
-                      children: [
-                        Icon(Icons.local_hospital, size: 18, color: Colors.grey[600]),
-                        const SizedBox(width: 8),
-                        _loadingAmbulance
-                            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                            : Text(
-                                _nearestAmbulance != null
-                                    ? 'Reg: ${_nearestAmbulance!.registrationNumber ?? 'Unassigned'} • ${_nearestAmbulance!.displayEta} away'
-                                    : 'No ambulance available nearby',
-                                style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                              ),
-                      ],
-                    ),
+                    if (_loadingAmbulance)
+                      const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    else if (_nearestAmbulance != null)
+                      Row(
+                        children: [
+                          Icon(Icons.local_hospital, size: 18, color: Colors.grey[600]),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Reg: ${_nearestAmbulance!.registrationNumber ?? 'Unassigned'} • ${_nearestAmbulance!.displayEta} away',
+                            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: 20),
 
                     _buildSelectionTile(Icons.payments_outlined, 'Cash', hasArrow: true),

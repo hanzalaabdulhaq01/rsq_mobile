@@ -19,6 +19,8 @@ class _ParamedicHomeScreenState extends State<ParamedicHomeScreen> {
   late final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Timer? _pollTimer;
   bool _hasAlert = false;
+  int _todayCases = 0;
+  int _todayMinutes = 0;
 
   static const Color primaryRed = Color(0xFF8D0B0B);
   static const Color lightPinkBg = Color(0xFFFFF5F5);
@@ -27,6 +29,30 @@ class _ParamedicHomeScreenState extends State<ParamedicHomeScreen> {
   void initState() {
     super.initState();
     _startPolling();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final rides = await RideApi.getDriverRides();
+      final completed = rides.where((r) => r.status == 'COMPLETED').toList();
+      final totalMinutes = completed.fold<int>(0, (sum, r) {
+        if (r.completedAt == null) return sum;
+        return sum + r.completedAt!.difference(r.requestedAt).inMinutes;
+      });
+      if (mounted) {
+        setState(() {
+          _todayCases = completed.length;
+          _todayMinutes = totalMinutes;
+        });
+      }
+    } catch (_) {}
+  }
+
+  String get _formattedDuration {
+    if (_todayMinutes < 60) return '${_todayMinutes}m';
+    final hours = _todayMinutes / 60;
+    return '${hours.toStringAsFixed(1)}h';
   }
 
   @override
@@ -483,11 +509,11 @@ class _ParamedicHomeScreenState extends State<ParamedicHomeScreen> {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard('Today\'s Cases', '0', Colors.blue),
+          child: _buildStatCard('Today\'s Cases', '$_todayCases', Colors.blue),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard('Hours', '0h', Colors.orange),
+          child: _buildStatCard('Hours', _formattedDuration, Colors.orange),
         ),
       ],
     );

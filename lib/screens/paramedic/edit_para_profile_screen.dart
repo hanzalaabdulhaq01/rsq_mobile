@@ -47,7 +47,7 @@ class _EditParamedicProfileScreenState extends State<EditParamedicProfileScreen>
 
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
-    final phone = _phoneController.text.trim();
+    final rawPhone = _phoneController.text.trim();
 
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -56,13 +56,31 @@ class _EditParamedicProfileScreenState extends State<EditParamedicProfileScreen>
       return;
     }
 
+    String? phone;
+    if (rawPhone.isNotEmpty) {
+      final digitsOnly = rawPhone.replaceAll(RegExp(r'[^\d]'), '');
+      String localPhone = digitsOnly;
+      if (localPhone.startsWith('92')) {
+        localPhone = localPhone.substring(2);
+      } else if (localPhone.startsWith('0')) {
+        localPhone = localPhone.substring(1);
+      }
+      if (!RegExp(r'^3\d{9}$').hasMatch(localPhone)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter a valid Pakistani mobile number'), backgroundColor: Colors.red),
+        );
+        return;
+      }
+      phone = '+92$localPhone';
+    }
+
     setState(() => _isLoading = true);
     try {
       final updated = await UserApi.updateUser(
         userId,
         name: name.isNotEmpty ? name : null,
         email: email.isNotEmpty ? email : null,
-        phone: phone.isNotEmpty ? phone : null,
+        phone: phone,
       );
       if (!mounted) return;
       context.read<AuthProvider>().updateUser(updated);
@@ -70,10 +88,10 @@ class _EditParamedicProfileScreenState extends State<EditParamedicProfileScreen>
         const SnackBar(content: Text('Profile updated successfully'), backgroundColor: Colors.green),
       );
       Navigator.pushReplacementNamed(context, AppRoutes.paramedicProfileScreen);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update profile. Try again.'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Failed to update profile: ${e.toString()}'), backgroundColor: Colors.red),
         );
       }
     } finally {

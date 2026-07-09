@@ -13,7 +13,7 @@ class SelectVehicleScreen extends StatefulWidget {
 
 class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
   String _selectedType = 'WITH_DOCTOR';
-  String? _selectedPayment = 'CASH';
+  final String _selectedPayment = 'CASH';
   double _pickupLat = 24.8607;
   double _pickupLng = 67.0011;
   String _pickupLabel = 'Current Location';
@@ -67,20 +67,9 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
       return;
     }
 
-    if (_selectedPayment == null || _selectedPayment!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a payment method'),
-          backgroundColor: Color(0xFFE53935),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
     // Update provider with selections
     rideProvider.setVehicleType(_selectedType);
-    rideProvider.setPaymentMethod(_selectedPayment ?? 'CASH');
+    rideProvider.setPaymentMethod(_selectedPayment);
 
     // Get destination from either provider or arguments
     final destLat = rideProvider.selectedDestination?.latitude ?? _destinationLat ?? 0.0;
@@ -105,10 +94,7 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
   bool _isButtonEnabled() {
     final rideProvider = context.read<RideProvider>();
     final hasDestination = rideProvider.selectedDestination != null || _destinationName != null;
-    return hasDestination &&
-        _selectedType.isNotEmpty &&
-        _selectedPayment != null &&
-        _selectedPayment!.isNotEmpty;
+    return hasDestination && _selectedType.isNotEmpty;
   }
 
   @override
@@ -198,35 +184,26 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
                       final isEnabled = _isButtonEnabled();
                       final missingField = rideProvider.selectedDestination == null
                           ? 'Select destination'
-                          : _selectedPayment == null || _selectedPayment!.isEmpty
-                              ? 'Select payment'
-                              : null;
+                          : null;
 
                       return Column(
                         children: [
-                          Row(
-                            children: [
-                              _buildPaymentMethod(),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: SizedBox(
-                                  height: 56,
-                                  child: ElevatedButton(
-                                    onPressed: isEnabled ? _goToFareSelection : null,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: isEnabled ? const Color(0xFFE53935) : Colors.grey[400],
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      elevation: 0,
-                                    ),
-                                    child: const Text(
-                                      'Select',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Roboto'),
-                                    ),
-                                  ),
-                                ),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: isEnabled ? _goToFareSelection : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isEnabled ? const Color(0xFFE53935) : Colors.grey[400],
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 0,
                               ),
-                            ],
+                              child: const Text(
+                                'Select',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'Roboto'),
+                              ),
+                            ),
                           ),
                           if (missingField != null)
                             Padding(
@@ -245,29 +222,6 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentMethod() {
-    return PopupMenuButton<String>(
-      onSelected: (String value) {
-        setState(() {
-          _selectedPayment = value;
-        });
-      },
-      itemBuilder: (BuildContext context) => [
-        const PopupMenuItem(value: 'CASH', child: Text('Cash')),
-        const PopupMenuItem(value: 'CARD', child: Text('Card')),
-        const PopupMenuItem(value: 'WALLET', child: Text('Wallet')),
-      ],
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset('assets/images/visa.png', width: 32),
-          const SizedBox(width: 4),
-          const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.black54),
-        ],
       ),
     );
   }

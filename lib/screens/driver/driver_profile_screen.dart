@@ -235,11 +235,65 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
             ]),
 
             _buildProfileCard([
-              _buildListTile(Icons.people_outline, 'Help & Support'),
+              _buildListTile(Icons.people_outline, 'Help & Support', onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    title: const Row(
+                      children: [
+                        Icon(Icons.emergency, color: Color(0xFFC62828), size: 22),
+                        SizedBox(width: 8),
+                        Text('Emergency Numbers', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    content: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _EmergencyRow('Rescue / Ambulance', '1122'),
+                        Divider(height: 20),
+                        _EmergencyRow('Police', '15'),
+                        Divider(height: 20),
+                        _EmergencyRow('Fire Brigade', '16'),
+                        Divider(height: 20),
+                        _EmergencyRow('Edhi Foundation', '115'),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Close', style: TextStyle(color: Color(0xFFC62828), fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                );
+              }),
               const Divider(height: 1),
-              _buildListTile(Icons.chat_bubble_outline, 'Contact us'),
+              _buildListTile(Icons.chat_bubble_outline, 'Contact us', onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    title: const Row(
+                      children: [
+                        Icon(Icons.chat_bubble_outline, color: Color(0xFFC62828), size: 22),
+                        SizedBox(width: 8),
+                        Text('Contact Us', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    content: const _EmergencyRow('ResQLink Support', '+92 311 2153591'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Close', style: TextStyle(color: Color(0xFFC62828), fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                );
+              }),
               const Divider(height: 1),
-              _buildListTile(Icons.lock_outline, 'Privacy policy'),
+              _buildListTile(Icons.lock_outline, 'Privacy policy',
+                  onTap: () => Navigator.pushNamed(context, AppRoutes.privacyPolicy)),
               const Divider(height: 1),
               _buildListTile(Icons.logout, 'Logout', isLogout: true, onTap: () async {
                 final navigator = Navigator.of(context);
@@ -396,6 +450,23 @@ class _DriverProfileScreenState extends State<DriverProfileScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _EmergencyRow extends StatelessWidget {
+  final String label;
+  final String number;
+  const _EmergencyRow(this.label, this.number);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+        Text(number, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFC62828))),
+      ],
     );
   }
 }
