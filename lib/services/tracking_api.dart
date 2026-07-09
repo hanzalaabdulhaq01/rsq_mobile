@@ -4,22 +4,18 @@ import 'api_service.dart';
 class TrackingApi {
   /// Update driver location during ride
   static Future<Map<String, dynamic>> updateLocation({
-    required String rideRequestId,
-    required double latitude,
-    required double longitude,
-    double? accuracy,
-    double? speed,
-    double? bearing,
+    required String ambulanceId,
+    required double lat,
+    required double lng,
+    String? rideRequestId,
   }) async {
     try {
       final data = <String, dynamic>{
-        'rideRequestId': rideRequestId,
-        'latitude': latitude,
-        'longitude': longitude,
+        'ambulanceId': ambulanceId,
+        'lat': lat,
+        'lng': lng,
       };
-      if (accuracy != null) data['accuracy'] = accuracy;
-      if (speed != null) data['speed'] = speed;
-      if (bearing != null) data['bearing'] = bearing;
+      if (rideRequestId != null) data['rideRequestId'] = rideRequestId;
 
       final result = await ApiService.post(
         '/tracking/update',

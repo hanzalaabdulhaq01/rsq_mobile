@@ -5,11 +5,13 @@ import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:dio/dio.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../providers/ride_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../services/ride_api.dart';
+import '../../services/tracking_api.dart';
 
 class DriverRideScreen extends StatefulWidget {
   const DriverRideScreen({super.key});
@@ -23,6 +25,7 @@ class _DriverRideScreenState extends State<DriverRideScreen> {
   bool _isStarting = false;
   bool _cancelledDialogShown = false;
   Timer? _pollTimer;
+  Timer? _locationTimer;
   List<LatLng> _routePoints = [];
 
   @override
@@ -32,7 +35,47 @@ class _DriverRideScreenState extends State<DriverRideScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _connectChatBackground();
       _fetchRoute();
+      final ride = context.read<RideProvider>().activeRide;
+      if (ride?.status == 'IN_TRIP') _startLocationTracking();
     });
+  }
+
+  void _startLocationTracking() {
+    if (_locationTimer != null) return;
+    _sendLocationUpdate();
+    _locationTimer = Timer.periodic(const Duration(seconds: 10), (_) => _sendLocationUpdate());
+  }
+
+  void _stopLocationTracking() {
+    _locationTimer?.cancel();
+    _locationTimer = null;
+  }
+
+  Future<void> _sendLocationUpdate() async {
+    final ride = context.read<RideProvider>().activeRide;
+    if (ride?.ambulanceId == null) return;
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) return;
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+      await TrackingApi.updateLocation(
+        ambulanceId: ride!.ambulanceId!,
+        lat: position.latitude,
+        lng: position.longitude,
+        rideRequestId: ride.id,
+      );
+    } catch (_) {
+      // Ignore transient location/network failures; next tick will retry.
+    }
   }
 
   void _connectChatBackground() {
@@ -73,6 +116,7 @@ class _DriverRideScreenState extends State<DriverRideScreen> {
   @override
   void dispose() {
     _pollTimer?.cancel();
+    _locationTimer?.cancel();
     super.dispose();
   }
 
@@ -94,6 +138,7 @@ class _DriverRideScreenState extends State<DriverRideScreen> {
   Future<void> _onRideCancelledByPatient() async {
     if (!mounted || _cancelledDialogShown) return;
     _cancelledDialogShown = true;
+    _stopLocationTracking();
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -123,6 +168,7 @@ class _DriverRideScreenState extends State<DriverRideScreen> {
       if (mounted) {
         final updated = await RideApi.getRide(ride.id);
         context.read<RideProvider>().setActiveRide(updated);
+        _startLocationTracking();
         setState(() => _isStarting = false);
       }
     } catch (_) {
@@ -159,6 +205,7 @@ class _DriverRideScreenState extends State<DriverRideScreen> {
     setState(() => _isEnding = true);
     try {
       await RideApi.updateStatus(ride.id, 'COMPLETED');
+      _stopLocationTracking();
       if (mounted) {
         context.read<RideProvider>().clearActiveRide();
         Navigator.pushReplacementNamed(context, AppRoutes.driverHomeScreen);
