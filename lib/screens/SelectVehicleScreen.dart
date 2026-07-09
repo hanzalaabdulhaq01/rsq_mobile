@@ -226,8 +226,6 @@ class _SelectVehicleScreenState extends State<SelectVehicleScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              _buildCircleIconButton(Icons.tune, () {}, size: 48, iconSize: 20),
                             ],
                           ),
                           if (missingField != null)
