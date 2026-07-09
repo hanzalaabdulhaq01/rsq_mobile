@@ -26,8 +26,8 @@ class _SelectPaymentMethodScreenState extends State<SelectPaymentMethodScreen> {
     {'label': 'Cash', 'detail': 'Pay on delivery', 'method': 'CASH', 'icon': Icons.money},
     {'label': 'JazzCash', 'detail': '', 'method': 'WALLET', 'icon': Icons.phone_android},
     {'label': 'EasyPaisa', 'detail': '', 'method': 'WALLET', 'icon': Icons.account_balance_wallet},
-    {'label': 'Credit/Debit Card', 'detail': 'Visa, MasterCard accepted', 'method': 'CARD', 'icon': Icons.credit_card},
-    {'label': 'Bank Transfer', 'detail': '', 'method': 'WALLET', 'icon': Icons.account_balance},
+    // {'label': 'Credit/Debit Card', 'detail': 'Visa, MasterCard accepted', 'method': 'CARD', 'icon': Icons.credit_card},
+    // {'label': 'Bank Transfer', 'detail': '', 'method': 'WALLET', 'icon': Icons.account_balance},
   ];
 
   @override
